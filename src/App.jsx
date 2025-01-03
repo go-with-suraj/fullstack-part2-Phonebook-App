@@ -6,12 +6,14 @@ import { PersonForm } from './components/PersonForm'
 import { Search } from './components/Search'
 import axios from 'axios'
 import personService from './services/persons'
+import { Notification } from './components/Notification'
 
 
 
 function App() {
 const [persons, setPersons] = useState([])
 const [searchQuery, setSearchQuery] = useState('')
+const [notification, setNotification] = useState({message: '', type: ''}) 
 
 
 useEffect(() => {
@@ -22,6 +24,11 @@ useEffect(() => {
   })
 }, [])
 
+
+const showNotification = (message, type) =>{
+  setNotification({message, type})
+  setTimeout(() => setNotification({message: '', type: ''}), 3000);
+}
 
 const addName = (e) => {
   e.preventDefault()
@@ -51,15 +58,16 @@ const addName = (e) => {
 
         personService
         .update(nameExits.id, updatePerson)
-        .then(updatePerson => {
+        .then(updatedPerson => {
           setPersons(persons.map(person => 
-            person.id !== updatePerson.id ? person : updatePerson 
+            person.id !== updatedPerson.id ? person : updatedPerson
           ))
+          showNotification(`Updated ${getName}'s number successfully`, 'success')
         })
 
         .catch(error => {
           console.log('Error updating person:', error)
-          alert('Failed to update phone number. Please try again later.')
+          showNotification('Failed to update phone number. please try again later', 'error')
         })
       }
     }
@@ -74,10 +82,11 @@ const addName = (e) => {
       .then(returnedPerson => {
         setPersons((prev) => [...prev, returnedPerson])
         setSearchQuery('')
+        showNotification(`Added ${getName} successfully`, 'success')
       })
       .catch((error) => {
         console.error('Error adding person:', error)
-        alert('Failed to add person. Please try again later')
+        showNotification('Failed to add person. Please try again later', 'error')
       })
       
     } 
@@ -91,9 +100,10 @@ if (window.confirm(`Delete ${person.name}`)) {
   .deletePerson(person.id)
   .then( () => {
     setPersons((prevPersons) => prevPersons.filter((person) => person.id !== id))
+    showNotification(`Deleted ${person.name} successfully`, 'success')
   })
   .catch(error => {
-    alert(`The entry for ${person.name} could not be deleted. It might already be removed.`)
+    showNotification(`Failed to delete ${person.name}`)
   })
 }
 }
@@ -105,6 +115,8 @@ const filteredPersons = persons.filter((person =>
   return (
 <>
    <h2>Phonebook</h2>
+
+   < Notification message={notification.message} type = {notification.type}/> 
     
     <PersonForm addName={addName}/>
    
