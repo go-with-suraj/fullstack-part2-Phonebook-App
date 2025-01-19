@@ -4,7 +4,6 @@ import './App.css'
 import Name from './components/Name'
 import { PersonForm } from './components/PersonForm'
 import { Search } from './components/Search'
-import axios from 'axios'
 import personService from './services/persons'
 import { Notification } from './components/Notification'
 
